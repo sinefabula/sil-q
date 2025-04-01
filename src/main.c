@@ -363,6 +363,7 @@ int main(int argc, char* argv[])
     bool done = FALSE;
 
     bool new_game = FALSE;
+    bool sil_heist = FALSE;
 
     int show_score = 0;
 
@@ -680,6 +681,11 @@ int main(int argc, char* argv[])
                     break;
                 case 3:
                     game_in_progress = TRUE;
+                    new_game = TRUE;
+                    sil_heist = TRUE;
+                    break;
+                case 4:
+                    game_in_progress = TRUE;
                     new_game = FALSE;
 
                     /* Prompt for a new name */
@@ -709,7 +715,7 @@ int main(int argc, char* argv[])
                     }
                     process_player_name(TRUE);
                     break;
-                case 4:
+                case 5:
                     cleanup_angband();
                     quit(NULL);
                     break;

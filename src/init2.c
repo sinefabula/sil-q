@@ -1784,9 +1784,11 @@ extern int initial_menu(int* highlight)
     Term_putstr(20, 20, 25, (*highlight == 2) ? TERM_L_BLUE : TERM_WHITE,
         "b) New character");
     Term_putstr(20, 21, 25, (*highlight == 3) ? TERM_L_BLUE : TERM_WHITE,
-        "c) Open saved character");
+        "c) Silmaril heist mode");
+    Term_putstr(20, 22, 25, (*highlight == 4) ? TERM_L_BLUE : TERM_WHITE,
+        "d) Open saved character");
     Term_putstr(
-        20, 22, 25, (*highlight == 4) ? TERM_L_BLUE : TERM_WHITE, "d) Quit");
+        20, 23, 25, (*highlight == 5) ? TERM_L_BLUE : TERM_WHITE, "e) Quit");
 
     /* Flush the prompt */
     Term_fresh();
@@ -1813,17 +1815,24 @@ extern int initial_menu(int* highlight)
         return (2);
     }
 
-    /* Open */
-    if ((ch == 'c') || (ch == 'O') || (ch == 'o'))
+    /* Simaril Heist mode! */
+    if ((ch == 'c') || (ch == 'h') || (ch == 'H'))
     {
         *highlight = 3;
         return (3);
     }
 
-    /* Quit  */
-    if ((ch == 'd') || (ch == 'Q') || (ch == 'q'))
+    /* Open */
+    if ((ch == 'd') || (ch == 'O') || (ch == 'o'))
     {
+        *highlight = 4;
         return (4);
+    }
+
+    /* Quit  */
+    if ((ch == 'e') || (ch == 'Q') || (ch == 'q'))
+    {
+        return (5);
     }
 
     /* Choose current  */
