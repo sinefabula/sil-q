@@ -75,6 +75,7 @@ extern bool character_dungeon;
 extern bool character_loaded;
 extern bool character_loaded_dead;
 extern bool character_saved;
+extern bool heist_mode;
 extern s16b character_icky;
 extern s16b character_xtra;
 extern u32b seed_randart;

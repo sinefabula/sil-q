@@ -363,7 +363,6 @@ int main(int argc, char* argv[])
     bool done = FALSE;
 
     bool new_game = FALSE;
-    bool sil_heist = FALSE;
 
     int show_score = 0;
 
@@ -682,7 +681,7 @@ int main(int argc, char* argv[])
                 case 3:
                     game_in_progress = TRUE;
                     new_game = TRUE;
-                    sil_heist = TRUE;
+                    heist_mode = TRUE;
                     break;
                 case 4:
                     game_in_progress = TRUE;

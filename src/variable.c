@@ -65,6 +65,7 @@ bool character_loaded; /* The character was loaded from a savefile and is living
 bool character_loaded_dead; /* The character was loaded from a savefile while
                                dead */
 bool character_saved; /* The character was just saved to a savefile */
+bool heist_mode; /* Silmaril Heist mode */
 
 s16b character_icky; /* Depth of the game in special mode */
 s16b character_xtra; /* Depth of the game in startup mode */
