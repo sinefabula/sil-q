@@ -297,6 +297,7 @@ header e_head;
 header r_head;
 header p_head;
 header c_head;
+header heist_head;
 header h_head;
 header b_head;
 header g_head;
@@ -888,6 +889,33 @@ static errr init_c_info(void)
     c_info = c_head.info_ptr;
     c_name = c_head.name_ptr;
     c_text = c_head.text_ptr;
+
+    return (err);
+}
+
+/*
+ * Initialize the "heist_info" array
+ */
+static errr init_heist_info(void)
+{
+    errr err;
+
+    /* Init the header */
+    init_header(&heist_head, z_info->heist_max, sizeof(player_heist));
+
+#ifdef ALLOW_TEMPLATES
+
+    /* Save a pointer to the parsing function */
+    heist_head.parse_info_txt = parse_heist_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+    err = init_info("heist", &heist_head);
+
+    /* Set the global variables */
+    heist_info = heist_head.info_ptr;
+    heist_name = heist_head.name_ptr;
+    heist_text = heist_head.text_ptr;
 
     return (err);
 }
@@ -1720,6 +1748,12 @@ void init_angband(void)
     note("[Initializing arrays... (houses)]");
     if (init_c_info())
         quit("Cannot initialize houses");
+
+    /* Initialize heist info */
+    note("[Initializing arrays... (heist)]");
+    if (init_heist_info())
+        quit("Cannot initialize heist");	
+
 
     /* Initialize flavor info */
     note("[Initializing arrays... (flavors)]");

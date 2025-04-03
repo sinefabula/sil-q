@@ -1,13 +1,13 @@
 # File: heist.txt
 #
-# This file is used to create the "lib/data/house.raw" file, which is
+# This file is used to create the "lib/data/heist.raw" file, which is
 # used to initialize the "player house" information for Sil.
 #
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 #
 #
-# === Understanding house.txt ===
+# === Understanding heist.txt ===
 #
 # N: house number : house name
 # A: alternate house name

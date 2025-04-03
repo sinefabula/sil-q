@@ -76,6 +76,7 @@ typedef struct owner_type owner_type;
 typedef struct store_type store_type;
 typedef struct player_race player_race;
 typedef struct player_house player_house;
+typedef struct player_heist player_heist;
 typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
@@ -106,6 +107,7 @@ struct maxima
     u16b p_max; /* Max size for "p_info[]" */
     u16b h_max; /* Max size for "h_info[]" */
     u16b c_max; /* Max size for "c_info[]" */
+	u16b heist_max; /* Max size for "heist_info[]" */
     u16b q_max; /* Max size for "q_info[]" */
     u16b flavor_max; /* Max size for "flavor_info[]" */
     u16b o_max; /* Max size for "o_list[]" */
@@ -706,6 +708,18 @@ struct player_race
  * Player house info
  */
 struct player_house
+{
+    u32b name; /* Name (offset)           eg 'House of Feanor' */
+    u32b alt_name; /* Alternate Name (offset) eg 'Feanor's House'  */
+    u32b short_name; /* Short Name (offset)     eg 'Feanor'          */
+    u32b text; /* Descrption (offset) */
+
+    s16b h_adj[A_MAX]; /* House stat bonuses */
+
+    u32b flags; /* House Flags (ie RHF flags) */
+};
+
+struct player_heist
 {
     u32b name; /* Name (offset)           eg 'House of Feanor' */
     u32b alt_name; /* Alternate Name (offset) eg 'Feanor's House'  */

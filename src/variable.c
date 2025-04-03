@@ -459,6 +459,7 @@ cptr keymap_act[KEYMAP_MODES][256];
  */
 const player_race* rp_ptr;
 player_house* hp_ptr;
+player_heist* heist_ptr;
 
 /*
  * The player other record (static)
@@ -551,6 +552,13 @@ char* p_text;
 player_house* c_info;
 char* c_name;
 char* c_text;
+
+/*
+ * The player heist arrays
+ */
+player_heist* heist_info;
+char* heist_name;
+char* heist_text;
 
 /*
  * The player history arrays

@@ -634,6 +634,19 @@ errr parse_z_info(char* buf, header* head)
         z_info->c_max = max;
     }
 
+    /* Process 'I' for "Maximum heist_info[] index" */
+    else if (buf[2] == 'I')
+    {
+        int max;
+
+        /* Scan for the value */
+        if (1 != sscanf(buf + 4, "%d", &max))
+            return (PARSE_ERROR_GENERIC);
+
+        /* Save the value */
+        z_info->heist_max = max;
+    }
+
     /* Process 'H' for "Maximum h_info[] index" */
     else if (buf[2] == 'H')
     {
@@ -2602,12 +2615,20 @@ static errr grab_one_race_flag(player_race* ptr, cptr what)
 }
 
 /*
- * Grab one flag in a player_house from a textual string
+ * Grab one flag in a player_heist from a textual string
  *
  * Sil:  these used to be the TR1, TR2 and TR3 flags,
  *       but we now use the race/house flags (RHF).
  */
 static errr grab_one_house_flag(player_house* ptr, cptr what)
+{
+    u32b* f[MAX_FLAG_SETS];
+    C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
+    f[RHF] = &(ptr->flags);
+    return grab_one_flag(f, "player", what);
+}
+
+static errr grab_one_heist_flag(player_heist* ptr, cptr what)
 {
     u32b* f[MAX_FLAG_SETS];
     C_WIPE(f, MAX_FLAG_SETS, sizeof(u32b*));
@@ -3064,6 +3085,191 @@ errr parse_c_info(char* buf, header* head)
     /* Success */
     return (0);
 }
+
+errr parse_heist_info(char* buf, header* head)
+{
+    int i, j;
+
+    char *s, *t;
+
+    /* Current entry */
+    static player_heist* heist_ptr = NULL;
+
+    /* Process 'N' for "New/Number/Name" */
+    if (buf[0] == 'N')
+    {
+        /* Find the colon before the name */
+        s = strchr(buf + 2, ':');
+
+        /* Verify that colon */
+        if (!s)
+            return (PARSE_ERROR_GENERIC);
+
+        /* Nuke the colon, advance to the name */
+        *s++ = '\0';
+
+        /* Paranoia -- require a name */
+        if (!*s)
+            return (PARSE_ERROR_GENERIC);
+
+        /* Get the index */
+        i = atoi(buf + 2);
+
+        /* Verify information */
+        if (i <= error_idx)
+            return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+        /* Verify information */
+        if (i >= head->info_num)
+            return (PARSE_ERROR_TOO_MANY_ENTRIES);
+
+        /* Save the index */
+        error_idx = i;
+
+        /* Point at the "info" */
+        heist_ptr = (player_heist*)head->info_ptr + i;
+
+        /* Store the name */
+        if (!(heist_ptr->name = add_name(head, s)))
+            return (PARSE_ERROR_OUT_OF_MEMORY);
+    }
+
+    /* Process 'A' for "Alternate Name" */
+    else if (buf[0] == 'A')
+    {
+        /* Find the colon before the name */
+        s = strchr(buf, ':');
+
+        /* Verify that colon */
+        if (!s)
+            return (PARSE_ERROR_GENERIC);
+
+        /* Nuke the colon, advance to the name */
+        *s++ = '\0';
+
+        /* Paranoia -- require a name */
+        if (!*s)
+            return (PARSE_ERROR_GENERIC);
+
+        /* Store the name */
+        if (!(heist_ptr->alt_name = add_name(head, s)))
+            return (PARSE_ERROR_OUT_OF_MEMORY);
+    }
+
+    /* Process 'B' for "Short Name" */
+    else if (buf[0] == 'B')
+    {
+        /* Find the colon before the name */
+        s = strchr(buf, ':');
+
+        /* Verify that colon */
+        if (!s)
+            return (PARSE_ERROR_GENERIC);
+
+        /* Nuke the colon, advance to the name */
+        *s++ = '\0';
+
+        /* Paranoia -- require a name */
+        if (!*s)
+            return (PARSE_ERROR_GENERIC);
+
+        /* Store the name */
+        if (!(heist_ptr->short_name = add_name(head, s)))
+            return (PARSE_ERROR_OUT_OF_MEMORY);
+    }
+
+    /* Process 'S' for "Stats" (one line only) */
+    else if (buf[0] == 'S')
+    {
+        int adj;
+
+        /* There better be a current ph_ptr */
+        if (!heist_ptr)
+            return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+        /* Start the string */
+        s = buf + 1;
+
+        /* For each stat */
+        for (j = 0; j < A_MAX; j++)
+        {
+            /* Find the colon before the subindex */
+            s = strchr(s, ':');
+
+            /* Verify that colon */
+            if (!s)
+                return (PARSE_ERROR_GENERIC);
+
+            /* Nuke the colon, advance to the subindex */
+            *s++ = '\0';
+
+            /* Get the value */
+            adj = atoi(s);
+
+            /* Save the value */
+            heist_ptr->h_adj[j] = adj;
+
+            /* Next... */
+            continue;
+        }
+    }
+
+    /* Hack -- Process 'F' for flags */
+    else if (buf[0] == 'F')
+    {
+        /* There better be a current pr_ptr */
+        if (!heist_ptr)
+            return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+        /* Parse every entry textually */
+        for (s = buf + 2; *s;)
+        {
+            /* Find the end of this entry */
+            for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */
+                ;
+
+            /* Nuke and skip any dividers */
+            if (*t)
+            {
+                *t++ = '\0';
+                while ((*t == ' ') || (*t == '|'))
+                    t++;
+            }
+
+            /* Parse this entry */
+            if (0 != grab_one_heist_flag(heist_ptr, s))
+                return (PARSE_ERROR_INVALID_FLAG);
+
+            /* Start the next entry */
+            s = t;
+        }
+    }
+
+    /* Process 'D' for "Description" */
+    else if (buf[0] == 'D')
+    {
+        /* There better be a current ph_ptr */
+        if (!heist_ptr)
+            return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+        /* Get the text */
+        s = buf + 2;
+
+        /* Store the text */
+        if (!add_text(&(heist_ptr->text), head, s))
+            return (PARSE_ERROR_OUT_OF_MEMORY);
+    }
+
+    else
+    {
+        /* Oops */
+        return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+    }
+
+    /* Success */
+    return (0);
+}
+
 
 /*
  * Initialize the "h_info" array, by parsing an ascii "template" file
